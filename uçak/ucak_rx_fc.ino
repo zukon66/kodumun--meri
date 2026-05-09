@@ -244,7 +244,8 @@ void updateBattery() {
 
 void updateGpsTelemetry() {
   if (gps.satellites.isValid()) {
-    telemetryOut.satelliteCount = (uint8_t)min((uint32_t)gps.satellites.value(), 255UL);
+    uint32_t sats = gps.satellites.value();
+    telemetryOut.satelliteCount = (uint8_t)(sats > 255U ? 255U : sats);
   } else {
     telemetryOut.satelliteCount = 0;
   }
