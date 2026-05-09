@@ -49,10 +49,10 @@ const byte txAddress[6] = "TX001";
 const byte rxAddress[6] = "RX001";
 
 enum FlightMode : uint8_t {
-  MODE_TURTLE = 0,
-  MODE_NORMAL = 1,
-  MODE_SPORT = 2,
-  MODE_ECO = 3
+  MODE_TURTLE = 1,
+  MODE_NORMAL = 2,
+  MODE_SPORT = 3,
+  MODE_ECO = 4
 };
 
 struct TX_Payload {
@@ -125,6 +125,7 @@ FlightMode activeMode = MODE_NORMAL;
 uint16_t activeToggle = 0;
 uint8_t currentPage = 0;
 uint8_t lastPage = 255;
+uint16_t pendingToggleCommand = 0;
 
 uint32_t lastSendMs = 0;
 uint32_t lastUiMs = 0;
@@ -256,7 +257,8 @@ void readInputs() {
   txPayload.joyX2 = adcToPulse(localInput.rxRaw);
   txPayload.joyY2 = adcToPulse(localInput.ryRaw);
   txPayload.activeMode = activeMode;
-  txPayload.activeToggle = activeToggle;
+  txPayload.activeToggle = pendingToggleCommand;
+  pendingToggleCommand = 0;
 }
 
 void sendRadioPacket() {
@@ -312,6 +314,7 @@ uint8_t keyToId(char key) {
 }
 
 void handleKeyPress(uint8_t keyId) {
+  pendingToggleCommand = keyId;
   switch (keyId) {
     case 1:
       activeMode = MODE_TURTLE;
